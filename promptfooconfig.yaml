@@ -1,0 +1,50 @@
+# 项目1：RAG 质量评测流水线 —— 评测配置
+# 被测对象：rag_app.py（mock RAG：字符二元组检索 + 摘录式生成）
+description: "云雀音箱 RAG 问答 - mock 版评测"
+
+prompts:
+  - label: rag-question
+    raw: "{{question}}"
+
+providers:
+  - python:///Users/awen/awensd/workspace/rag-eval-pipeline/rag_app.py
+
+tests:
+  # ── 正常用例：资料库中有答案 ──
+  - description: 配网问题
+    vars:
+      question: 音箱怎么配网？
+    assert:
+      - type: contains-any
+        value: 配网,添加设备,Wi-Fi
+  - description: 蓝牙问题
+    vars:
+      question: 怎么连接蓝牙？
+    assert:
+      - type: contains-any
+        value: 蓝牙,配对
+  - description: 音量问题
+    vars:
+      question: 怎么调节音量
+    assert:
+      - type: contains-any
+        value: 音量,音量环
+  - description: 固件升级
+    vars:
+      question: 音箱怎么升级固件？
+    assert:
+      - type: contains-any
+        value: 固件,App
+  - description: 隐私问题
+    vars:
+      question: 语音数据会被上传吗？
+    assert:
+      - type: contains-any
+        value: 上传,云端,本地
+  # ── 拒答用例：资料库中无答案，考察系统「知不知道自己不知道」──
+  - description: 资料外问题应拒答
+    vars:
+      question: 音箱支持退款吗？
+    assert:
+      - type: contains-any
+        value: 抱歉,无法,没有找到
