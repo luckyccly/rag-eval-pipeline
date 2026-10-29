@@ -48,3 +48,9 @@ tests:
     assert:
       - type: contains-any
         value: 抱歉,无法,没有找到
+  - description: 音响问题排查
+    vars:
+      question: 音响出现问题如何排查
+    assert:
+      - type: contains-any
+        value: 抱歉,无法,没有找到
