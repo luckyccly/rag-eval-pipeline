@@ -30,15 +30,35 @@ def retrieve(question):
     return scored[0] if scored and scored[0][0] > 0 else (0, None)
 
 
+import json
+import urllib.request
+
+OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_MODEL = "qwen2.5:3b"
+
+PROMPT_TEMPLATE = """你是一个智能客服，只根据下面的产品资料回答用户问题。
+如果资料中没有答案，回答：抱歉，产品资料中没有找到相关信息。
+
+产品资料：
+{context}
+
+用户问题：{question}
+
+回答："""
+
+
 def generate(question, doc):
-    """摘录式 mock：返回文档中与问题重叠度最高的句子（无 LLM 调用）"""
-    best, best_score = None, 0
-    qb = _bigrams(question)
-    for sent in doc["text"].split("。"):
-        score = len(qb & _bigrams(sent))
-        if score > best_score:
-            best, best_score = sent, score
-    return f"根据产品资料：{best}。"
+    """调用本地 Ollama 模型，基于检索到的文档生成回答（temperature=0 降低随机性）"""
+    payload = json.dumps({
+        "model": OLLAMA_MODEL,
+        "prompt": PROMPT_TEMPLATE.format(context=doc["text"], question=question),
+        "stream": False,
+        "options": {"temperature": 0},
+    }).encode("utf-8")
+    req = urllib.request.Request(OLLAMA_URL, data=payload,
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=120) as resp:
+        return json.loads(resp.read().decode("utf-8"))["response"].strip()
 
 
 def ask(question):

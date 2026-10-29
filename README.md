@@ -24,6 +24,6 @@ npx promptfoo@latest view     # 网页版报告
 ## 路线图
 
 - [x] mock 版流水线跑通（6/6 全绿）
-- [ ] 接入 Ollama 本地 LLM 替换 mock 生成器
+- [x] 接入 Ollama 本地 LLM 替换 mock 生成器
 - [ ] 引入语义评测指标（faithfulness / answer relevancy）
 - [ ] 评测集扩充 + bad case 归因报告
