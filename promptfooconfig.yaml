@@ -18,11 +18,14 @@ tests:
   - description: 配网问题
     vars:
       question: 音箱怎么配网？
+      query: 音箱怎么配网？
+      context: 云雀音箱开机后，长按机身顶部静音键5秒进入配网模式，打开云雀App选择添加设备，输入Wi-Fi密码即可完成配网。配网失败时请确认手机与音箱连接同一Wi-Fi。
     assert:
       - type: contains-any
         value: 配网,添加设备,Wi-Fi
       - type: llm-rubric
-        value: 回答应说明配网的具体步骤（进入配网模式、在App中添加设备、输入Wi-Fi密码），且不得编造产品资料中不存在的操作步骤
+        value: 回答应说明配网的具体步骤（ 进入配网模式、在App中添加设备、输入Wi-Fi密码），且不得编造产品资料中不存在的操作步骤
+      - type: context-faithfulness
   - description: 蓝牙问题
     vars:
       question: 怎么连接蓝牙？

@@ -61,14 +61,20 @@ def generate(question, doc):
         return json.loads(resp.read().decode("utf-8"))["response"].strip()
 
 
-def ask(question):
-    """完整 RAG 问答流程：检索 → 有命中则生成，无命中/低于阈值则拒答"""
+def ask_full(question):
+    """返回 (回答, 检索到的资料原文)；拒答时原文为空"""
     score, doc = retrieve(question)
     if doc is None or score < 2:
-        return REFUSAL
-    return generate(question, doc)
+        return REFUSAL, ""
+    return generate(question, doc), doc["text"]
+
+
+def ask(question):
+    """兼容旧接口：只返回回答"""
+    return ask_full(question)[0]
 
 
 def call_api(prompt, options, context):
-    """promptfoo Python provider 标准接口"""
-    return {"output": ask(context["vars"]["question"])}
+    """promptfoo Python provider 标准接口；context 字段供 faithfulness 断言使用"""
+    answer, ctx = ask_full(context["vars"]["question"])
+    return {"output": answer, "context": ctx}
