@@ -4,7 +4,7 @@ description: "云雀音箱 RAG 问答 - mock 版评测"
 
 defaultTest:
   options:
-    provider: ollama:qwen2.5:3b
+    provider: ollama:qwen2.5:7b
 
 prompts:
   - label: rag-question
@@ -25,31 +25,46 @@ tests:
         value: 配网,添加设备,Wi-Fi
       - type: llm-rubric
         value: 回答应说明配网的具体步骤（ 进入配网模式、在App中添加设备、输入Wi-Fi密码），且不得编造产品资料中不存在的操作步骤
-      - type: context-faithfulness
   - description: 蓝牙问题
     vars:
       question: 怎么连接蓝牙？
+      query: 怎么连接蓝牙？
+      context: 蓝牙连接：对音箱说『小韵，打开蓝牙』，指示灯变为蓝色闪烁后在手机蓝牙列表选择Yunque-Speaker完成配对。蓝牙模式下不支持语音点歌。
     assert:
       - type: contains-any
         value: 蓝牙,配对
+      - type: llm-rubric
+        value: 回答应说明连接蓝牙的具体步骤( 指示灯变为蓝色后在手机蓝牙列表选择Yunque-Speaker完成配对) ，且不得编造产品资料中不存在的操作步骤
   - description: 音量问题
     vars:
       question: 怎么调节音量
+      query: 怎么调节音量
+      context: 调节音量可以说『小韵，音量调到50』，或旋转音箱顶部音量环。音量环顺时针增大，逆时针减小，静音时音量环指示灯为红色。
     assert:
       - type: contains-any
         value: 音量,音量环
+      - type: llm-rubric
+        value: 回答应说明调节音量的具体步骤( 旋转音箱顶部音量环调节音量) ，且不得编造产品资料中不存在的操作步骤
   - description: 固件升级
     vars:
       question: 音箱怎么升级固件？
+      query: 音箱怎么升级固件？
+      context: 固件升级：云雀App中进入设备设置，点击固件更新，升级过程中请保持音箱通电，全程约10分钟。云雀音箱自购买日起保修一年。
     assert:
       - type: contains-any
         value: 固件,App
+      - type: llm-rubric
+        value: 回答应说明升级固件的具体步骤( 在云雀App进入设备配置，点击固件更新) ，且不得编造产品资料中不存在的操作步骤
   - description: 隐私问题
     vars:
       question: 语音数据会被上传吗？
+      query: 语音数据会被上传吗？
+      context: 隐私说明：语音数据仅在唤醒词触发后上传云端处理，可在App中开启本地模式，本地模式下语音不出设备，录音缓存可在App中一键清除。
     assert:
       - type: contains-any
         value: 上传,云端,本地
+      - type: llm-rubric
+        value: 回答应说明隐私问题的具体答案( 语音数据仅在唤醒词触发后上传云端处理，可在App中开启本地模式) ，且不得编造产品资料中不存在的操作步骤
   # ── 拒答用例：资料库中无答案，考察系统「知不知道自己不知道」──
   - description: 资料外问题应拒答
     vars:
@@ -57,9 +72,13 @@ tests:
     assert:
       - type: contains-any
         value: 抱歉,无法,没有找到
-  - description: 音响问题排查
+      - type: llm-rubric
+        value: 回答是否明确告知用户无法从产品资料中找到该问题的答案，且没有夹带任何编造的操作建议或无关内容
+  - description: 资料外问题应拒答
     vars:
       question: 音响出现问题如何排查
     assert:
       - type: contains-any
         value: 抱歉,无法,没有找到
+      - type: llm-rubric
+        value: 回答是否明确告知用户无法从产品资料中找到该问题的答案，且没有夹带任何编造的操作建议或无关内容
