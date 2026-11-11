@@ -36,6 +36,18 @@ npx promptfoo@latest view     # 网页版报告
 2. 裁判判决对判卷 prompt 措辞高度敏感（同模型同答案：v1 手工判 FAIL，promptfoo 内置判 PASS）
 3. 修复 = 判卷 prompt 注入资料原文 + 显式判定规则，判案方式从「凭感觉」变为「引证据」
 
+## 自研 faithfulness 断言（现行架构）
+
+内置断言下线后，以 `faithfulness.py` 替代：7B 裁判 + 结构化判卷考卷，经 `defaultTest` 全局挂载。五条正常用例走「关键词 → 语义 → 忠实度」三关卡，两条拒答用例自动跳过忠实度层。
+
+**考卷迭代史（每版由真实缺陷驱动）**：
+- v1：格式模板无示例锚定 → 裁判复读模板交白卷
+- v2：未强制引用原句 → 判词无法审计
+- v3：未隔离相关性 → 裁判把「与问题不相关」误判为「无依据」（保修句冤案，隔离审讯定位）
+- v4（现行）：硬规则「相关性不影响判定」+ 例题锚定（同义改写=有依据 / 与资料矛盾=无依据）+ 裁判升级 7B，连续两轮 7/7 全绿
+
+**已知边界**：7B 裁判仍可能个别误判，但判词强制引用原句，一切 FAIL 可人工复审；被测模型输出存在日期间漂移（温度 0 亦然），`check_fixtures.py` 守护考卷一致性。
+
 ### faithfulness 断言对照实验
 
 对内置 context-faithfulness 断言做了裁判 A/B 对照（同流水线同断言，仅换裁判）：
@@ -53,5 +65,5 @@ npx promptfoo@latest view     # 网页版报告
 - [x] mock 版流水线跑通（6/6 全绿）
 - [x] 接入 Ollama 本地 LLM 替换 mock 生成器
 - [x] LLM-as-Judge 裁判验证与修复（手工实验，详见上方缺陷记录）
-- [ ] 工程化 faithfulness：rag_app 返回 context，接入 promptfoo 的 context-faithfulness 断言
+- [x] 自研 faithfulness 断言替代内置实现（裁判 A/B 对照 + 考卷 4 版迭代）
 - [ ] 评测集扩充 + bad case 归因报告

@@ -5,6 +5,9 @@ description: "云雀音箱 RAG 问答 - mock 版评测"
 defaultTest:
   options:
     provider: ollama:qwen2.5:7b
+  assert:
+    - type: python
+      value: file:///Users/awen/awensd/workspace/rag-eval-pipeline/faithfulness.py
 
 prompts:
   - label: rag-question
